@@ -11,6 +11,8 @@ RED = (240, 35, 12)
 DARK_GREY = (80, 78, 81)
 BLACK = (0, 0, 0)
 
+FONT = pygame.font.SysFont("SFMono Nerd Font", 16)
+
 WIDTH, HEIGHT = 800, 800
 WIN = pygame.display.set_mode(( WIDTH,HEIGHT))
 pygame.display.set_caption("planet sim")
@@ -39,7 +41,20 @@ class Planet:
     def draw(self, win):
         x = self.x * self.SCALE + WIDTH / 2
         y = self.y * self.SCALE + HEIGHT / 2
+
+        if len(self.orbit) >= 2:
+            updated_points = []
+            for point in self.orbit:
+                x,y = point
+                x = x * self.SCALE + WIDTH / 2
+                y = y * self.SCALE + HEIGHT / 2 
+                updated_points.append((x, y))
+            pygame.draw.lines(win, self.color, False, updated_points, 2)
+
         pygame.draw.circle(win, self.color, (x,y), self.radius)
+        if not self.sun:
+            distance_text = FONT.render(f"{round(self.distance_to_sun/1000, 1)}km", 1, WHITE)
+            win.blit(distance_text, (x - distance_text.get_width()/2, y - distance_text.get_height()/2))
 
     def attraction(self, other):
         other_x, other_y = other.x, other.y
