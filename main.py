@@ -113,9 +113,9 @@ def main():
             if event.type == pygame.QUIT:
                 run = False
             if event.type == pygame.MOUSEWHEEL:
-                if event.y == 1:
+                if event.y == 1 and scaleSlider.getValue() < 400:
                     scaleSlider.setValue(scaleSlider.getValue() + 15)
-                elif event.y == -1:
+                elif event.y == -1 and scaleSlider.getValue() > 100:
                     scaleSlider.setValue(scaleSlider.getValue() - 15)
 
         for planet in planets:
