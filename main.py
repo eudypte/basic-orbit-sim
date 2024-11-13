@@ -112,6 +112,11 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
+            if event.type == pygame.MOUSEWHEEL:
+                if event.y == 1:
+                    scaleSlider.setValue(scaleSlider.getValue() + 15)
+                elif event.y == -1:
+                    scaleSlider.setValue(scaleSlider.getValue() - 15)
 
         for planet in planets:
             planet.SCALE = scaleSlider.getValue() / planet.AU
