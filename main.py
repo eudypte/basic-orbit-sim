@@ -1,5 +1,6 @@
 import pygame
 import pygame_widgets
+import button
 from pygame_widgets.slider import Slider
 import math 
 pygame.init()
@@ -17,6 +18,13 @@ WIDTH, HEIGHT = 800, 800
 WIN = pygame.display.set_mode(( WIDTH,HEIGHT))
 pygame.display.set_caption("planet sim")
 scaleSlider = Slider(WIN, 380, 10, 400, 30, min = 100, max = 400,color=WHITE)
+
+pauseImg = pygame.image.load('img/pause.png').convert_alpha()
+resumeImg = pygame.image.load('img/resume.png').convert_alpha()
+spedupInactive = pygame.image.load('img/spedupInac.png').convert_alpha()
+spedupActive = pygame.image.load('img/spedupAct.png').convert_alpha()
+pauseButton = button.Button(20, 20, pauseImg, resumeImg, 1)
+speedButton = button.Button(80, 20, spedupInactive, spedupActive, 1)
 
 class Planet:
     AU = 149.6e6 * 1000
@@ -90,6 +98,8 @@ class Planet:
 
 def main():
     run = True
+    pause = False
+    spedup = False
     clock = pygame.time.Clock()
 
     sun = Planet(0, 0, 30, YELLOW, 1.98892 * 10 ** 30)
@@ -108,7 +118,20 @@ def main():
     while run:
         clock.tick(60)
         WIN.fill(BLACK)
+        if pauseButton.draw(WIN, pause) == True:
+            pause = True
+        else:
+            pause = False
+        if speedButton.draw(WIN, spedup) == True:
+            spedup = True
+            for planet in planets:
+                planet.TIMESTEP = 3600*48
+        else:
+            spedup = False
+            for planet in planets:
+                planet.TIMESTEP = 3600*24
         
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
@@ -117,10 +140,15 @@ def main():
                     scaleSlider.setValue(scaleSlider.getValue() + 15)
                 elif event.y == -1:
                     scaleSlider.setValue(scaleSlider.getValue() - 15)
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    pause = not pause
+
 
         for planet in planets:
             planet.SCALE = scaleSlider.getValue() / planet.AU
-            planet.update_pos(planets)
+            if not pause:
+                planet.update_pos(planets)
             planet.draw(WIN)
         
         pygame_widgets.update(pygame.event.get())
