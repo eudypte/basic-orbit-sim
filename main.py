@@ -49,6 +49,7 @@ class Planet:
     def draw(self, win):
         x = self.x * self.SCALE + WIDTH / 2
         y = self.y * self.SCALE + HEIGHT / 2
+        radius = (self.radius / 250) * self.AU * self.SCALE
 
         if len(self.orbit) >= 2:
             updated_points = []
@@ -57,9 +58,11 @@ class Planet:
                 x = x * self.SCALE + WIDTH / 2
                 y = y * self.SCALE + HEIGHT / 2 
                 updated_points.append((x, y))
+            if len(updated_points) > 100:
+                updated_points = updated_points[-100:]
             pygame.draw.lines(win, self.color, False, updated_points, 2)
 
-        pygame.draw.circle(win, self.color, (x,y), self.radius)
+        pygame.draw.circle(win, self.color, (x,y), radius)
         if not self.sun:
             distance_text = FONT.render(f"{round(self.distance_to_sun/1000, 1)}km", 1, WHITE)
             win.blit(distance_text, (x - distance_text.get_width()/2, y - distance_text.get_height()/2))
