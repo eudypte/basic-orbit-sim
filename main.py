@@ -1,6 +1,7 @@
 import pygame
 import pygame_widgets
 import button
+import settings
 from pygame_widgets.slider import Slider
 import math 
 pygame.init()
@@ -14,17 +15,30 @@ BLACK = (0, 0, 0)
 
 FONT = pygame.font.SysFont("SFMono Nerd Font", 16)
 
-WIDTH, HEIGHT = 800, 800
+WIDTH, HEIGHT = 1000, 1000
 WIN = pygame.display.set_mode(( WIDTH,HEIGHT))
 pygame.display.set_caption("planet sim")
-scaleSlider = Slider(WIN, 380, 10, 400, 30, min = 100, max = 400,color=WHITE)
+scaleSlider = Slider(WIN, WIDTH-420, 10, 400, 30, min = 100, max = 400,color=WHITE) #380width
 
 pauseImg = pygame.image.load('img/pause.png').convert_alpha()
 resumeImg = pygame.image.load('img/resume.png').convert_alpha()
 spedupInactive = pygame.image.load('img/spedupInac.png').convert_alpha()
 spedupActive = pygame.image.load('img/spedupAct.png').convert_alpha()
-pauseButton = button.Button(20, 20, pauseImg, resumeImg, 1)
-speedButton = button.Button(80, 20, spedupInactive, spedupActive, 1)
+newImg = pygame.image.load('img/create.png').convert_alpha()
+settingsImg = pygame.image.load('img/settings.png').convert_alpha()
+settingsActImg = pygame.image.load('img/settingsAct.png').convert_alpha()
+checklistImg = pygame.image.load('img/checklist.png').convert_alpha()
+checklistImgAct = pygame.image.load('img/checklistAct.png').convert_alpha()
+
+pauseButton = button.Button(80, 20, pauseImg, resumeImg, 1)
+speedButton = button.Button(140, 20, spedupInactive, spedupActive, 1)
+settingsButton = button.Button(20, 20, settingsImg, settingsActImg, 1)
+
+showSun = button.Button(30, 100, checklistImg, checklistImgAct, 1)
+showEarth = button.Button(30, 130, checklistImg, checklistImgAct, 1)
+showMars = button.Button(30, 160, checklistImg, checklistImgAct, 1)
+showMercury = button.Button(30, 190, checklistImg, checklistImgAct, 1)
+showVenus = button.Button(30, 220, checklistImg, checklistImgAct, 1)
 
 class Planet:
     AU = 149.6e6 * 1000
@@ -32,7 +46,7 @@ class Planet:
     SCALE = 250 / AU # 1AU = 250 pixels
     TIMESTEP = 3600*24 # one day
 
-    def __init__(self, x, y, radius, color, mass):
+    def __init__(self, x, y, radius, color, mass, active):
         self.x = x
         self.y = y
         self.radius = radius
@@ -45,6 +59,7 @@ class Planet:
 
         self.x_vel = 0
         self.y_vel = 0
+        self.active = active
 
     def draw(self, win):
         x = self.x * self.SCALE + WIDTH / 2
@@ -60,12 +75,16 @@ class Planet:
                 updated_points.append((x, y))
             if len(updated_points) > 100:
                 updated_points = updated_points[-100:]
-            pygame.draw.lines(win, self.color, False, updated_points, 2)
-
-        pygame.draw.circle(win, self.color, (x,y), radius)
+            if self.active:
+                pygame.draw.lines(win, self.color, False, updated_points, 2)
+        if self.active:
+            pygame.draw.circle(win, self.color, (x,y), radius)
         if not self.sun:
             distance_text = FONT.render(f"{round(self.distance_to_sun/1000, 1)}km", 1, WHITE)
-            win.blit(distance_text, (x - distance_text.get_width()/2, y - distance_text.get_height()/2))
+            #win.blit(distance_text, (x - distance_text.get_width()/2, y - distance_text.get_height()/2))
+            if self.active:
+                win.blit(distance_text, (((x - distance_text.get_width()/2)+15), ((y - distance_text.get_height()/2))-25))
+                pygame.draw.lines(win, WHITE, False, [(x,y),(x+15,y-20)])
 
     def attraction(self, other):
         other_x, other_y = other.x, other.y
@@ -99,25 +118,30 @@ class Planet:
         self.orbit.append((self.x, self.y))
         
 
+
 def main():
     run = True
     pause = False
     spedup = False
+    settingsAct = False 
     clock = pygame.time.Clock()
 
-    sun = Planet(0, 0, 30, YELLOW, 1.98892 * 10 ** 30)
+    sun = Planet(0, 0, 30, YELLOW, 1.98892 * 10 ** 30, True)
     sun.sun = True
-    earth = Planet(-1 * Planet.AU,0,16,BLUE,5.9742 * 10**24)
+    earth = Planet(-1 * Planet.AU,0,16,BLUE,5.9742 * 10**24, True)
     earth.y_vel = 29.893 * 1000
-    mars = Planet(-1.524 * Planet.AU, 0, 12, RED, 6.39 * 10**23)
+    mars = Planet(-1.524 * Planet.AU, 0, 12, RED, 6.39 * 10**23, True)
     mars.y_vel = 24.077 * 1000
-    mercury = Planet(0.387 * Planet.AU, 0, 8, DARK_GREY, 3.30 * 10**23)
+    mercury = Planet(0.387 * Planet.AU, 0, 8, DARK_GREY, 3.30 * 10**23, True)
     mercury.y_vel = -47.4 * 1000
-    venus = Planet(0.723 * Planet.AU, 0, 14, WHITE, 4.8685 * 10**24)
+    venus = Planet(0.723 * Planet.AU, 0, 14, WHITE, 4.8685 * 10**24, True)
     venus.y_vel = -35.02 * 1000
 
     planets = [sun, earth, mars, mercury, venus]
+    planetsAct = [True, True, True, True, True]
 
+    settingTest = settings.Settings(planets, FONT)
+    
     while run:
         clock.tick(60)
         WIN.fill(BLACK)
@@ -134,7 +158,8 @@ def main():
             for planet in planets:
                 planet.TIMESTEP = 3600*24
         
-
+        #newButton.draw(WIN, pause)
+        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
@@ -146,6 +171,12 @@ def main():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     pause = not pause
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_r:
+                    spedup = not spedup
+            #if event.type == pygame.VIDEORESIZE:
+            # There's some code to add back window content here.
+            #   WIN = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
 
 
         for planet in planets:
@@ -154,6 +185,42 @@ def main():
                 planet.update_pos(planets)
             planet.draw(WIN)
         
+        if settingsButton.draw(WIN, settingsAct) == True:
+            settingsAct = True
+            settingTest.draw(WIN)
+            if showSun.draw(WIN, planetsAct[0]) == True:
+                planetsAct[0] = True
+            else:
+                planetsAct[0] = False
+
+            if showEarth.draw(WIN, planetsAct[1]) == True:
+                planetsAct[1] = True
+            else:
+                planetsAct[1] = False
+
+            if showMars.draw(WIN, planetsAct[2]) == True:
+                planetsAct[2] = True
+            else:
+                planetsAct[2] = False
+
+            if showMercury.draw(WIN, planetsAct[3]) == True:
+                planetsAct[3] = True
+            else:
+                planetsAct[3] = False
+
+            if showVenus.draw(WIN, planetsAct[4]) == True:
+                planetsAct[4] = True
+            else:
+                planetsAct[4] = False
+        
+            ct = 0
+            for planet in planets:
+                planet.active = planetsAct[ct]
+                ct += 1
+            
+        else:
+            settingsAct = False    
+
         pygame_widgets.update(pygame.event.get())
         pygame.display.update()
 
