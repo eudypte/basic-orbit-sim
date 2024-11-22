@@ -128,6 +128,7 @@ def main():
     spedup = False
     settingsAct = False
     mouseFree = True
+    debug = False
     clock = pygame.time.Clock()
 
     sun = Planet(0, 0, 30, YELLOW, 1.98892 * 10 ** 30, True)
@@ -151,8 +152,9 @@ def main():
         clock.tick(60)
         WIN.fill(BLACK)
         pos = pygame.mouse.get_pos()
-        #WIN.blit(FONT.render(str(pos), 1, WHITE),(500, 250))       For debug
-        #WIN.blit(FONT.render(str(mouseFree), 1, WHITE),(500, 200))
+        if debug:
+            WIN.blit(FONT.render(str(pos), 1, WHITE),(0, HEIGHT-20))       #For debug
+            WIN.blit(FONT.render(str(mouseFree), 1, WHITE),(0, HEIGHT-40))
         if ((pos[0]>20 and pos[0]<190) and (pos[1]>20 and pos[1]<70)) or (settingsAct == True and ((pos[0]>20 and pos[0]<320) and (pos[1]>90 and pos[1]<590))) or (pos[0]>550 and pos[0]<WIDTH) and (pos[1]>0 and pos[1]<70):
             mouseFree = False
         else:
@@ -185,7 +187,10 @@ def main():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_r:
                     spedup = not spedup
-            if event.type == pygame.MOUSEBUTTONUP and mouseFree == True: 
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_F1:
+                    debug = not debug
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and mouseFree == True: 
                 newP = Planet((pos[0]-500)/scaleSlider.getValue() * Planet.AU, (pos[1]-500)/scaleSlider.getValue() * Planet.AU, 8, WHITE, 5.9742 * 10**24, True)
                 newP.y_vel = 29.893 * 1000
                 planets.append(newP)
