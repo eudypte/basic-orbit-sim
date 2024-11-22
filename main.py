@@ -15,14 +15,13 @@ RED = (240, 35, 12)
 DARK_GREY = (80, 78, 81)
 BLACK = (0, 0, 0)
 
-FONT = pygame.font.SysFont("SFMono Nerd Font", 16)
+FONT = pygame.font.SysFont("sfmonomedium", 16)
 
 WIDTH, HEIGHT = 1000, 1000
 WIN = pygame.display.set_mode(( WIDTH,HEIGHT))
 manager = pygame_gui.UIManager((WIDTH, HEIGHT))
 pygame.display.set_caption("planet sim")
 scaleSlider = Slider(WIN, WIDTH-420, 10, 400, 30, min = 100, max = 400,color=WHITE) #380width
-
 
 pauseImg = pygame.image.load('img/pause.png').convert_alpha()
 resumeImg = pygame.image.load('img/resume.png').convert_alpha()
