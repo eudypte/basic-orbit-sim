@@ -1,7 +1,9 @@
 import pygame
+import pygame_gui.ui_manager
 import pygame_widgets
 import button
 import settings
+import pygame_gui
 from pygame_widgets.slider import Slider
 import math 
 pygame.init()
@@ -17,8 +19,10 @@ FONT = pygame.font.SysFont("SFMono Nerd Font", 16)
 
 WIDTH, HEIGHT = 1000, 1000
 WIN = pygame.display.set_mode(( WIDTH,HEIGHT))
+manager = pygame_gui.UIManager((WIDTH, HEIGHT))
 pygame.display.set_caption("planet sim")
 scaleSlider = Slider(WIN, WIDTH-420, 10, 400, 30, min = 100, max = 400,color=WHITE) #380width
+
 
 pauseImg = pygame.image.load('img/pause.png').convert_alpha()
 resumeImg = pygame.image.load('img/resume.png').convert_alpha()
@@ -123,7 +127,8 @@ def main():
     run = True
     pause = False
     spedup = False
-    settingsAct = False 
+    settingsAct = False
+    mouseFree = True
     clock = pygame.time.Clock()
 
     sun = Planet(0, 0, 30, YELLOW, 1.98892 * 10 ** 30, True)
@@ -138,6 +143,7 @@ def main():
     venus.y_vel = -35.02 * 1000
 
     planets = [sun, earth, mars, mercury, venus]
+    basePlanets = [sun, earth, mars, mercury, venus]
     planetsAct = [True, True, True, True, True]
 
     settingTest = settings.Settings(planets, FONT)
@@ -145,6 +151,14 @@ def main():
     while run:
         clock.tick(60)
         WIN.fill(BLACK)
+        pos = pygame.mouse.get_pos()
+        #WIN.blit(FONT.render(str(pos), 1, WHITE),(500, 250))       For debug
+        #WIN.blit(FONT.render(str(mouseFree), 1, WHITE),(500, 200))
+        if ((pos[0]>20 and pos[0]<190) and (pos[1]>20 and pos[1]<70)) or (settingsAct == True and ((pos[0]>20 and pos[0]<320) and (pos[1]>90 and pos[1]<590))) or (pos[0]>550 and pos[0]<WIDTH) and (pos[1]>0 and pos[1]<70):
+            mouseFree = False
+        else:
+            mouseFree = True
+
         if pauseButton.draw(WIN, pause) == True:
             pause = True
         else:
@@ -157,8 +171,6 @@ def main():
             spedup = False
             for planet in planets:
                 planet.TIMESTEP = 3600*24
-        
-        #newButton.draw(WIN, pause)
         
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -174,6 +186,11 @@ def main():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_r:
                     spedup = not spedup
+            if event.type == pygame.MOUSEBUTTONUP and mouseFree == True: 
+                newP = Planet((pos[0]-500)/scaleSlider.getValue() * Planet.AU, (pos[1]-500)/scaleSlider.getValue() * Planet.AU, 8, WHITE, 5.9742 * 10**24, True)
+                newP.y_vel = 29.893 * 1000
+                planets.append(newP)
+
             #if event.type == pygame.VIDEORESIZE:
             # There's some code to add back window content here.
             #   WIN = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
@@ -188,6 +205,7 @@ def main():
         if settingsButton.draw(WIN, settingsAct) == True:
             settingsAct = True
             settingTest.draw(WIN)
+            
             if showSun.draw(WIN, planetsAct[0]) == True:
                 planetsAct[0] = True
             else:
@@ -214,7 +232,7 @@ def main():
                 planetsAct[4] = False
         
             ct = 0
-            for planet in planets:
+            for planet in basePlanets:
                 planet.active = planetsAct[ct]
                 ct += 1
             

@@ -16,13 +16,6 @@ planetNames = ["Sun", "Earth", "Mars", "Mercury", "Venus"]
 FONT = pygame.font.SysFont("SFMono Nerd Font", 16)
 
 WIN = pygame.display.set_mode(( 300,500))
-checklistImg = pygame.image.load('img/checklist.png').convert_alpha()
-checklistImgAct = pygame.image.load('img/checklistAct.png').convert_alpha()
-showSun = button.Button(30, 100, checklistImg, checklistImgAct, 1)
-showEarth = button.Button(30, 130, checklistImg, checklistImgAct, 1)
-showMars = button.Button(30, 160, checklistImg, checklistImgAct, 1)
-showMercury = button.Button(30, 190, checklistImg, checklistImgAct, 1)
-showVenus = button.Button(30, 220, checklistImg, checklistImgAct, 1)
 
 class Settings:
     def __init__(self, list, font):
