@@ -191,7 +191,7 @@ def main():
                 if event.key == pygame.K_F1:
                     debug = not debug
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and mouseFree == True: 
-                newP = Planet((pos[0]-500)/scaleSlider.getValue() * Planet.AU, (pos[1]-500)/scaleSlider.getValue() * Planet.AU, 8, WHITE, 5.9742 * 10**24, True)
+                newP = Planet((pos[0]-(WIDTH/2))/scaleSlider.getValue() * Planet.AU, (pos[1]-(HEIGHT/2))/scaleSlider.getValue() * Planet.AU, 8, WHITE, 5.9742 * 10**24, True)
                 newP.y_vel = 29.893 * 1000
                 planets.append(newP)
 
