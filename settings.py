@@ -33,3 +33,4 @@ class Settings:
         win.blit(FONT_13px.render('Venus', 1, WHITE),(55, 252))
         win.blit(FONT_18px.render('Custom Planet Settings', 1, WHITE),(30, 280))
         win.blit(FONT_13px.render('Planet Mass:', 1, WHITE),(30, 317))
+        win.blit(FONT_13px.render('Initial Y Velocity:', 1, WHITE),(30, 367))

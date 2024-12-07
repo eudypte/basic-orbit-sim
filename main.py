@@ -24,7 +24,7 @@ manager = pygame_gui.UIManager((WIDTH, HEIGHT))
 pygame.display.set_caption("Planet Simulation")
 scaleSlider = Slider(WIN, WIDTH-420, 10, 400, 30, min = 100, max = 400,color=WHITE) #380width
 newPlanetMassSlider = Slider(WIN, 35, 340, 180, 10, min = 1, max = 10,step = 0.1,color=WHITE) # * 10**24
-
+newPlanetYVel = Slider(WIN, 35, 390, 180, 10, min = -50, max = 50,step = 0.5,color=WHITE) # * 100
 
 
 pauseImg = pygame.image.load('img/pause.png').convert_alpha()
@@ -197,7 +197,7 @@ def main():
                     debug = not debug
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and mouseFree == True: 
                 newP = Planet((pos[0]-(WIDTH/2))/scaleSlider.getValue() * Planet.AU, (pos[1]-(HEIGHT/2))/scaleSlider.getValue() * Planet.AU, 8, WHITE, newPlanetMassSlider.getValue() * 10**24, True)
-                newP.y_vel = 29.893 * 1000
+                newP.y_vel = newPlanetYVel.getValue() * 1000
                 planets.append(newP)
 
             #if event.type == pygame.VIDEORESIZE:
@@ -215,7 +215,9 @@ def main():
             settingsmenu = True
             settingTest.draw(WIN)
             newPlanetMassSlider.show()
+            newPlanetYVel.show()
             WIN.blit(FONT_13px.render(f"{round(newPlanetMassSlider.getValue().__float__(),1)} * 10^24", 1, WHITE),(130, 317))
+            WIN.blit(FONT_13px.render(f"{round(newPlanetYVel.getValue().__float__(),1)} * 1000", 1, WHITE),(190, 367))
 
             if showSun.draw(WIN, planetsAct[0]) == True:
                 planetsAct[0] = True
@@ -250,6 +252,7 @@ def main():
         else:
             settingsmenu = False 
             newPlanetMassSlider.hide()   
+            newPlanetYVel.hide()
 
         pygame_widgets.update(pygame.event.get())
         pygame.display.update()
