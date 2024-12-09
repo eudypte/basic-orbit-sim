@@ -24,7 +24,7 @@ manager = pygame_gui.UIManager((WIDTH, HEIGHT))
 pygame.display.set_caption("Planet Simulation")
 scaleSlider = Slider(WIN, WIDTH-420, 10, 400, 30, min = 100, max = 400,color=WHITE) #380width
 newPlanetMassSlider = Slider(WIN, 35, 340, 180, 10, min = 1, max = 10,step = 0.1,color=WHITE) # * 10**24
-newPlanetYVel = Slider(WIN, 35, 390, 180, 10, min = -50, max = 50,step = 0.5,color=WHITE) # * 100
+newPlanetYVel = Slider(WIN, 35, 390, 180, 10, min = -50, max = 50,step = 0.5, initial = 25,color=WHITE) # * 100
 
 
 pauseImg = pygame.image.load('img/pause.png').convert_alpha()
@@ -36,6 +36,8 @@ settingsImg = pygame.image.load('img/settings.png').convert_alpha()
 settingsActImg = pygame.image.load('img/settingsAct.png').convert_alpha()
 checklistImg = pygame.image.load('img/checklist.png').convert_alpha()
 checklistImgAct = pygame.image.load('img/checklistAct.png').convert_alpha()
+clearPlanets = pygame.image.load('img/clearplanets.png').convert_alpha()
+clearPlanetsAct = pygame.image.load('img/clearplanetsAct.png').convert_alpha()
 
 pauseButton = button.Button(80, 20, pauseImg, resumeImg, 1)
 speedButton = button.Button(140, 20, spedupInactive, spedupActive, 1)
@@ -46,6 +48,8 @@ showEarth = button.Button(30, 160, checklistImg, checklistImgAct, 1)
 showMars = button.Button(30, 190, checklistImg, checklistImgAct, 1)
 showMercury = button.Button(30, 220, checklistImg, checklistImgAct, 1)
 showVenus = button.Button(30, 250, checklistImg, checklistImgAct, 1)
+
+clearCustomPlanets = button.Button(30, 420, clearPlanets, clearPlanetsAct, 1)
 
 class Planet:
     AU = 149.6e6 * 1000
@@ -133,6 +137,7 @@ def main():
     settingsmenu = False
     mouseFree = True
     debug = False
+    clearPlanets = False
     clock = pygame.time.Clock()
 
     sun = Planet(0, 0, 30, YELLOW, 1.98892 * 10 ** 30, True)
@@ -214,10 +219,15 @@ def main():
         if settingsButton.draw(WIN, settingsmenu) == True:
             settingsmenu = True
             settingTest.draw(WIN)
+            if clearCustomPlanets.draw(WIN, clearPlanets) == True:
+                while(len(planets)>5):
+                    planets.pop()
+                
             newPlanetMassSlider.show()
             newPlanetYVel.show()
             WIN.blit(FONT_13px.render(f"{round(newPlanetMassSlider.getValue().__float__(),1)} * 10^24", 1, WHITE),(130, 317))
             WIN.blit(FONT_13px.render(f"{round(newPlanetYVel.getValue().__float__(),1)} * 1000", 1, WHITE),(190, 367))
+            WIN.blit(FONT_13px.render("Clear Custom Planets", 1, WHITE),(40, 430))
 
             if showSun.draw(WIN, planetsAct[0]) == True:
                 planetsAct[0] = True

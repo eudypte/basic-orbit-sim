@@ -24,7 +24,7 @@ class Settings:
         self.newl =[True, True, True, True, True]
 
     def draw(self, win):
-        pygame.draw.rect(win, DARK_GREY, (20, 90, 300, 500))
+        pygame.draw.rect(win, DARK_GREY, (20, 90, 300, 380))
         win.blit(FONT_18px.render('Toggle Planets', 1, WHITE),(30, 100))
         win.blit(FONT_13px.render('Sun', 1, WHITE),(55, 132))
         win.blit(FONT_13px.render('Earth', 1, WHITE),(55, 162))
