@@ -1,13 +1,12 @@
 import pygame
-import pygame_gui.ui_manager
 import pygame_widgets
 import button
 import settings
 import pygame_gui
 from pygame_widgets.slider import Slider
-import math
 from planet import Planet
 from config import *
+from utils import Images
 
 pygame.init()
 
@@ -18,30 +17,19 @@ scaleSlider = Slider(WIN, WIDTH-420, 10, 400, 30, min = 100, max = 400,color=WHI
 newPlanetMassSlider = Slider(WIN, 35, 340, 180, 10, min = 1, max = 10,step = 0.1,color=WHITE) # * 10**24
 newPlanetYVel = Slider(WIN, 35, 390, 180, 10, min = -50, max = 50,step = 0.5, initial = 25,color=WHITE) # * 100
 
+images = Images()
 
-pauseImg = pygame.image.load('img/pause.png').convert_alpha()
-resumeImg = pygame.image.load('img/resume.png').convert_alpha()
-spedupInactive = pygame.image.load('img/spedupInac.png').convert_alpha()
-spedupActive = pygame.image.load('img/spedupAct.png').convert_alpha()
-newImg = pygame.image.load('img/create.png').convert_alpha()
-settingsImg = pygame.image.load('img/settings.png').convert_alpha()
-settingsActImg = pygame.image.load('img/settingsAct.png').convert_alpha()
-checklistImg = pygame.image.load('img/checklist.png').convert_alpha()
-checklistImgAct = pygame.image.load('img/checklistAct.png').convert_alpha()
-clearPlanets = pygame.image.load('img/clearplanets.png').convert_alpha()
-clearPlanetsAct = pygame.image.load('img/clearplanetsAct.png').convert_alpha()
+pauseButton = button.Button(80, 20, images.pauseImg, images.resumeImg, 1)
+speedButton = button.Button(140, 20, images.spedupInactive, images.spedupActive, 1)
+settingsButton = button.Button(20, 20, images.settingsImg, images.settingsActImg, 1)
 
-pauseButton = button.Button(80, 20, pauseImg, resumeImg, 1)
-speedButton = button.Button(140, 20, spedupInactive, spedupActive, 1)
-settingsButton = button.Button(20, 20, settingsImg, settingsActImg, 1)
+showSun = button.Button(30, 130, images.checklistImg, images.checklistImgAct, 1)
+showEarth = button.Button(30, 160, images.checklistImg, images.checklistImgAct, 1)
+showMars = button.Button(30, 190, images.checklistImg, images.checklistImgAct, 1)
+showMercury = button.Button(30, 220, images.checklistImg, images.checklistImgAct, 1)
+showVenus = button.Button(30, 250, images.checklistImg, images.checklistImgAct, 1)
 
-showSun = button.Button(30, 130, checklistImg, checklistImgAct, 1)
-showEarth = button.Button(30, 160, checklistImg, checklistImgAct, 1)
-showMars = button.Button(30, 190, checklistImg, checklistImgAct, 1)
-showMercury = button.Button(30, 220, checklistImg, checklistImgAct, 1)
-showVenus = button.Button(30, 250, checklistImg, checklistImgAct, 1)
-
-clearCustomPlanets = button.Button(30, 420, clearPlanets, clearPlanetsAct, 1)
+clearCustomPlanets = button.Button(30, 420, images.clearPlanets, images.clearPlanetsAct, 1)
 
 def main():
     run = True
