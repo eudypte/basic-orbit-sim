@@ -1,134 +1,39 @@
 import pygame
-import pygame_gui.ui_manager
 import pygame_widgets
 import button
 import settings
 import pygame_gui
 from pygame_widgets.slider import Slider
-import math 
+from planet import Planet
+from config import *
+from images import Images
+
 pygame.init()
 
-WHITE = (255, 255, 255)
-YELLOW = (255, 255, 0)
-BLUE = (3, 132, 252)
-RED = (240, 35, 12)
-DARK_GREY = (80, 78, 81)
-BLACK = (0, 0, 0)
-
-FONT_16px = pygame.font.SysFont("sfmonomedium,sfmonomediumnerdfontcomplete", 16)
-FONT_13px = pygame.font.SysFont("sfmonomedium,sfmonomediumnerdfontcomplete", 13)
-
-WIDTH, HEIGHT = 1000, 1000
-WIN = pygame.display.set_mode(( WIDTH,HEIGHT))
+WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 manager = pygame_gui.UIManager((WIDTH, HEIGHT))
 pygame.display.set_caption("Planet Simulation")
+# Sliders
+# TODO: fix the blue bar behind sliders
 scaleSlider = Slider(WIN, WIDTH-420, 10, 400, 30, min = 100, max = 400,color=WHITE) #380width
 newPlanetMassSlider = Slider(WIN, 35, 340, 180, 10, min = 1, max = 10,step = 0.1,color=WHITE) # * 10**24
 newPlanetYVel = Slider(WIN, 35, 390, 180, 10, min = -50, max = 50,step = 0.5, initial = 25,color=WHITE) # * 100
 
+images = Images()
 
-pauseImg = pygame.image.load('img/pause.png').convert_alpha()
-resumeImg = pygame.image.load('img/resume.png').convert_alpha()
-spedupInactive = pygame.image.load('img/spedupInac.png').convert_alpha()
-spedupActive = pygame.image.load('img/spedupAct.png').convert_alpha()
-newImg = pygame.image.load('img/create.png').convert_alpha()
-settingsImg = pygame.image.load('img/settings.png').convert_alpha()
-settingsActImg = pygame.image.load('img/settingsAct.png').convert_alpha()
-checklistImg = pygame.image.load('img/checklist.png').convert_alpha()
-checklistImgAct = pygame.image.load('img/checklistAct.png').convert_alpha()
-clearPlanets = pygame.image.load('img/clearplanets.png').convert_alpha()
-clearPlanetsAct = pygame.image.load('img/clearplanetsAct.png').convert_alpha()
+# Buttons Top Left
+pauseButton = button.Button(80, 20, images.pauseImg, images.resumeImg, 1)
+speedButton = button.Button(140, 20, images.spedupInactive, images.spedupActive, 1)
+settingsButton = button.Button(20, 20, images.settingsImg, images.settingsActImg, 1)
 
-pauseButton = button.Button(80, 20, pauseImg, resumeImg, 1)
-speedButton = button.Button(140, 20, spedupInactive, spedupActive, 1)
-settingsButton = button.Button(20, 20, settingsImg, settingsActImg, 1)
+# Menu Buttons
+showSun = button.Button(30, 130, images.checklistImg, images.checklistImgAct, 1)
+showEarth = button.Button(30, 160, images.checklistImg, images.checklistImgAct, 1)
+showMars = button.Button(30, 190, images.checklistImg, images.checklistImgAct, 1)
+showMercury = button.Button(30, 220, images.checklistImg, images.checklistImgAct, 1)
+showVenus = button.Button(30, 250, images.checklistImg, images.checklistImgAct, 1)
 
-showSun = button.Button(30, 130, checklistImg, checklistImgAct, 1)
-showEarth = button.Button(30, 160, checklistImg, checklistImgAct, 1)
-showMars = button.Button(30, 190, checklistImg, checklistImgAct, 1)
-showMercury = button.Button(30, 220, checklistImg, checklistImgAct, 1)
-showVenus = button.Button(30, 250, checklistImg, checklistImgAct, 1)
-
-clearCustomPlanets = button.Button(30, 420, clearPlanets, clearPlanetsAct, 1)
-
-class Planet:
-    AU = 149.6e6 * 1000
-    G = 6.67428e-11
-    SCALE = 250 / AU # 1AU = 250 pixels
-    TIMESTEP = 3600*24 # one day
-
-    def __init__(self, x, y, radius, color, mass, active):
-        self.x = x
-        self.y = y
-        self.radius = radius
-        self.color = color
-        self.mass = mass
-
-        self.orbit = []
-        self.sun = False
-        self.distance_to_sun = 0
-
-        self.x_vel = 0
-        self.y_vel = 0
-        self.active = active
-
-    def draw(self, win):
-        x = self.x * self.SCALE + WIDTH / 2
-        y = self.y * self.SCALE + HEIGHT / 2
-        radius = (self.radius / 250) * self.AU * self.SCALE
-
-        if len(self.orbit) >= 2:
-            updated_points = []
-            for point in self.orbit:
-                x,y = point
-                x = x * self.SCALE + WIDTH / 2
-                y = y * self.SCALE + HEIGHT / 2 
-                updated_points.append((x, y))
-            if len(updated_points) > 100:
-                updated_points = updated_points[-100:]
-            if self.active:
-                pygame.draw.lines(win, self.color, False, updated_points, 2)
-        if self.active:
-            pygame.draw.circle(win, self.color, (x,y), radius)
-        if not self.sun:
-            distance_text = FONT_16px.render(f"{round(self.distance_to_sun/1000, 1)}km", 1, WHITE)
-            #win.blit(distance_text, (x - distance_text.get_width()/2, y - distance_text.get_height()/2))
-            if self.active:
-                win.blit(distance_text, (((x - distance_text.get_width()/2)+15), ((y - distance_text.get_height()/2))-25))
-                pygame.draw.lines(win, WHITE, False, [(x,y),(x+15,y-20)])
-
-    def attraction(self, other):
-        other_x, other_y = other.x, other.y
-        distance_x = other_x - self.x
-        distance_y = other_y - self.y
-        distance = math.sqrt(distance_x ** 2 + distance_y ** 2)
-
-        if other.sun:
-            self.distance_to_sun = distance
-        force = self.G * self.mass * other.mass / distance**2
-        theta = math.atan2(distance_y, distance_x)
-        force_x = math.cos(theta) * force
-        force_y = math.sin(theta) * force
-        return force_x, force_y
-    
-    def update_pos(self, planets):
-        total_fx = total_fy = 0
-        for planet in planets:
-            if self == planet:
-                continue
-
-            fx, fy = self.attraction(planet)
-            total_fx += fx
-            total_fy += fy
-        
-        self.x_vel += total_fx / self.mass * self.TIMESTEP
-        self.y_vel += total_fy / self.mass * self.TIMESTEP
-
-        self.x += self.x_vel * self.TIMESTEP
-        self.y += self.y_vel * self.TIMESTEP
-        self.orbit.append((self.x, self.y))
-        
-
+clearCustomPlanets = button.Button(30, 420, images.clearPlanets, images.clearPlanetsAct, 1)
 
 def main():
     run = True
@@ -140,15 +45,16 @@ def main():
     clearPlanets = False
     clock = pygame.time.Clock()
 
-    sun = Planet(0, 0, 30, YELLOW, 1.98892 * 10 ** 30, True)
+    # TODO: rewrite in a separate function
+    sun = Planet(x=0, y=0, radius=30, color=YELLOW, mass=1.98892 * 10 ** 30, active=True)
     sun.sun = True
-    earth = Planet(-1 * Planet.AU,0,16,BLUE,5.9742 * 10**24, True)
+    earth = Planet(x=-1 * Planet.AU, y=0, radius=16, color=BLUE, mass=5.9742 * 10**24, active=True)
     earth.y_vel = 29.893 * 1000
-    mars = Planet(-1.524 * Planet.AU, 0, 12, RED, 6.39 * 10**23, True)
+    mars = Planet(x=-1.524 * Planet.AU, y=0, radius=12, color=RED, mass=6.39 * 10**23, active=True)
     mars.y_vel = 24.077 * 1000
-    mercury = Planet(0.387 * Planet.AU, 0, 8, DARK_GREY, 3.30 * 10**23, True)
+    mercury = Planet(x=0.387 * Planet.AU, y=0, radius=8, color=DARK_GREY, mass=3.30 * 10**23, active=True)
     mercury.y_vel = -47.4 * 1000
-    venus = Planet(0.723 * Planet.AU, 0, 14, WHITE, 4.8685 * 10**24, True)
+    venus = Planet(x=0.723 * Planet.AU, y=0, radius=14, color=WHITE, mass=4.8685 * 10**24, active=True)
     venus.y_vel = -35.02 * 1000
 
     planets = [sun, earth, mars, mercury, venus]
@@ -200,8 +106,9 @@ def main():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_F1:
                     debug = not debug
+            # TODO: add a menu button for custom planets and make planets more customizable
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and mouseFree == True: 
-                newP = Planet((pos[0]-(WIDTH/2))/scaleSlider.getValue() * Planet.AU, (pos[1]-(HEIGHT/2))/scaleSlider.getValue() * Planet.AU, 8, WHITE, newPlanetMassSlider.getValue() * 10**24, True)
+                newP = Planet(x=(pos[0]-(WIDTH/2))/scaleSlider.getValue() * Planet.AU, y=(pos[1]-(HEIGHT/2))/scaleSlider.getValue() * Planet.AU, radius=8, color=WHITE, mass=newPlanetMassSlider.getValue() * 10**24, active=True)
                 newP.y_vel = newPlanetYVel.getValue() * 1000
                 planets.append(newP)
 
@@ -229,6 +136,7 @@ def main():
             WIN.blit(FONT_13px.render(f"{round(newPlanetYVel.getValue().__float__(),1)} * 1000", 1, WHITE),(190, 367))
             WIN.blit(FONT_13px.render("Clear Custom Planets", 1, WHITE),(40, 430))
 
+            # TODO: rewrite this section with a helper function
             if showSun.draw(WIN, planetsAct[0]) == True:
                 planetsAct[0] = True
             else:
