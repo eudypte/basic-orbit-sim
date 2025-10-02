@@ -6,7 +6,7 @@ import pygame_gui
 from pygame_widgets.slider import Slider
 from planet import Planet
 from config import *
-from utils import Images
+from images import Images
 
 pygame.init()
 
